@@ -7,6 +7,7 @@ import json
 import datetime
 import unittest
 
+# pylint: disable=unused-import
 from presence_analyzer import main, views, utils
 
 
@@ -53,6 +54,36 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(len(data), 2)
         self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
 
+    def test_mean_time_weekday(self):
+        """
+        Test mean time weekday.
+        """
+        data = utils.get_data()
+        min_user = min(data.keys())
+
+        resp = self.client.get('/api/v1/mean_time_weekday/%s' % (min_user-1))
+        self.assertEqual(resp.status_code, 404)
+
+        for user_id in data:
+            resp = self.client.get('/api/v1/mean_time_weekday/%s' % user_id)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.content_type, 'application/json')
+
+    def test_presence_weekday(self):
+        """
+        Test presence weekday.
+        """
+        data = utils.get_data()
+        min_user = min(data.keys())
+
+        resp = self.client.get('/api/v1/presence_weekday/%s' % (min_user-1))
+        self.assertEqual(resp.status_code, 404)
+
+        for user_id in data:
+            resp = self.client.get('/api/v1/presence_weekday/%s' % user_id)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.content_type, 'application/json')
+
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     """
@@ -77,6 +108,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """
         data = utils.get_data()
         self.assertIsInstance(data, dict)
+        self.assertNotEqual(data, {})
         self.assertItemsEqual(data.keys(), [10, 11])
         sample_date = datetime.date(2013, 9, 10)
         self.assertIn(sample_date, data[10])
