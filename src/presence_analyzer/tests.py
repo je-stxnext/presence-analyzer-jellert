@@ -84,6 +84,21 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
 
+    def test_presence_start_end_view(self):
+        """
+        Test presence of start and end means.
+        """
+        data = utils.get_data()
+        min_user = min(data.keys())
+
+        resp = self.client.get('/api/v1/presence_start_end/%s' % (min_user-1))
+        self.assertEqual(resp.status_code, 404)
+
+        for user_id in data:
+            resp = self.client.get('/api/v1/presence_start_end/%s' % user_id)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.content_type, 'application/json')
+
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     """
