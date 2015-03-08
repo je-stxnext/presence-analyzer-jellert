@@ -4,6 +4,8 @@ Helper functions used in views.
 """
 
 import csv
+from itertools import groupby
+from operator import itemgetter
 from json import dumps
 from functools import wraps
 from datetime import datetime
@@ -102,3 +104,42 @@ def mean(items):
     Calculates arithmetic mean. Returns zero for empty lists.
     """
     return float(sum(items)) / len(items) if len(items) > 0 else 0
+
+
+def group_by_start_end_means(items):
+    """
+    Groups presence entries by means of start and end times.
+    """
+    start_end_times = [{'day': date.weekday(),
+                        'start': seconds_since_midnight(time_['start']),
+                        'end': seconds_since_midnight(time_['end'])}
+                       for (date, time_) in items.viewitems()]
+    start_end_times = sorted(start_end_times,
+                             lambda d1, d2: cmp(d1['day'], d2['day']))
+    start_means = __group_time_means(start_end_times, 'start')
+    end_means = __group_time_means(start_end_times, 'end')
+
+    return [(get_time_from_seconds(s), get_time_from_seconds(e))
+            for s, e in zip(start_means, end_means)]
+
+
+def __group_time_means(times, time_field):
+    """
+    Calculates mean if a time collection.
+    Requires data sorted by a day identifier.
+    """
+    getDay = itemgetter('day')
+    means = [0] * 7
+    for key, group in groupby(times, getDay):
+        means[key] = int(mean(list(item[time_field] for item in group)))
+    return means
+
+
+def get_time_from_seconds(seconds):
+    """
+    Calculates time from seconds.
+    """
+    hour = seconds / 3600
+    minute = (seconds - hour * 3600) / 60
+    seconds = seconds - hour * 3600 - minute * 60
+    return (hour, minute, seconds)
