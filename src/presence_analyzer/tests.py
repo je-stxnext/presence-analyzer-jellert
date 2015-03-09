@@ -9,6 +9,7 @@ import unittest
 
 # pylint: disable=unused-import
 from presence_analyzer import main, views, utils
+from presence_analyzer.utils import get_time_from_seconds
 
 
 TEST_DATA_CSV = os.path.join(
@@ -18,35 +19,25 @@ TEST_DATA_CSV = os.path.join(
 
 # pylint: disable=maybe-no-member, too-many-public-methods
 class PresenceAnalyzerViewsTestCase(unittest.TestCase):
-    """
-    Views tests.
-    """
+    """ Views tests. """
 
     def setUp(self):
-        """
-        Before each test, set up a environment.
-        """
+        """ Before each test, set up a environment. """
         main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
         self.client = main.app.test_client()
 
     def tearDown(self):
-        """
-        Get rid of unused objects after each test.
-        """
+        """ Get rid of unused objects after each test. """
         pass
 
     def test_mainpage(self):
-        """
-        Test main page redirect.
-        """
+        """ Test main page redirect. """
         resp = self.client.get('/')
         self.assertEqual(resp.status_code, 302)
         assert resp.headers['Location'].endswith('/presence_weekday.html')
 
     def test_api_users(self):
-        """
-        Test users listing.
-        """
+        """ Test users listing. """
         resp = self.client.get('/api/v1/users')
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')
@@ -55,9 +46,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
 
     def test_mean_time_weekday(self):
-        """
-        Test mean time weekday.
-        """
+        """ Test mean time weekday. """
         data = utils.get_data()
         min_user = min(data.keys())
 
@@ -70,9 +59,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.content_type, 'application/json')
 
     def test_presence_weekday(self):
-        """
-        Test presence weekday.
-        """
+        """ Test presence weekday. """
         data = utils.get_data()
         min_user = min(data.keys())
 
@@ -85,9 +72,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.content_type, 'application/json')
 
     def test_presence_start_end_view(self):
-        """
-        Test presence of start and end means.
-        """
+        """ Test presence of start and end means. """
         data = utils.get_data()
         min_user = min(data.keys())
 
@@ -101,26 +86,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
-    """
-    Utility functions tests.
-    """
+    """ Utility functions tests. """
 
     def setUp(self):
-        """
-        Before each test, set up a environment.
-        """
+        """ Before each test, set up a environment. """
         main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
 
     def tearDown(self):
-        """
-        Get rid of unused objects after each test.
-        """
+        """ Get rid of unused objects after each test. """
         pass
 
     def test_get_data(self):
-        """
-        Test parsing of CSV file.
-        """
+        """ Test parsing of CSV file. """
         data = utils.get_data()
         self.assertIsInstance(data, dict)
         self.assertNotEqual(data, {})
@@ -133,11 +110,16 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
             datetime.time(9, 39, 5)
         )
 
+    def test_get_time_from_seconds(self):
+        """ Test for conversion from seconds to hours, minutes, seconds. """
+        self.assertEqual(get_time_from_seconds(0), [0, 0, 0])
+        self.assertEqual(get_time_from_seconds(60), [0, 1, 0])
+        self.assertEqual(get_time_from_seconds(50714), [14, 05, 14])
+        self.assertRaises(ValueError, get_time_from_seconds, -123)
+
 
 def suite():
-    """
-    Default test suite.
-    """
+    """ Default test suite. """
     base_suite = unittest.TestSuite()
     base_suite.addTest(unittest.makeSuite(PresenceAnalyzerViewsTestCase))
     base_suite.addTest(unittest.makeSuite(PresenceAnalyzerUtilsTestCase))

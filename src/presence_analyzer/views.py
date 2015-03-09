@@ -16,18 +16,14 @@ log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 @app.route('/')
 def mainpage():
-    """
-    Redirects to front page.
-    """
+    """ Redirects to front page. """
     return redirect('/static/presence_weekday.html')
 
 
 @app.route('/api/v1/users', methods=['GET'])
 @jsonify
 def users_view():
-    """
-    Users listing for dropdown.
-    """
+    """ Users listing for dropdown. """
     data = get_data()
     return [
         {'user_id': i, 'name': 'User {0}'.format(str(i))}
@@ -38,29 +34,23 @@ def users_view():
 @app.route('/api/v1/mean_time_weekday/<int:user_id>', methods=['GET'])
 @jsonify
 def mean_time_weekday_view(user_id):
-    """
-    Returns mean presence time of given user grouped by weekday.
-    """
+    """ Returns mean presence time of given user grouped by weekday. """
     data = get_data()
     if user_id not in data:
         log.debug('User %s not found!', user_id)
         abort(404)
 
     weekdays = group_by_weekday(data[user_id])
-    result = [
+    return [
         (calendar.day_abbr[weekday], mean(intervals))
         for weekday, intervals in enumerate(weekdays)
     ]
-
-    return result
 
 
 @app.route('/api/v1/presence_weekday/<int:user_id>', methods=['GET'])
 @jsonify
 def presence_weekday_view(user_id):
-    """
-    Returns total presence time of given user grouped by weekday.
-    """
+    """ Returns total presence time of given user grouped by weekday. """
     data = get_data()
     if user_id not in data:
         log.debug('User %s not found!', user_id)
@@ -89,8 +79,7 @@ def presence_start_end_view(user_id):
         abort(404)
 
     start_end_means = group_by_start_end_means(data[user_id])
-    result = [
+    return [
         (calendar.day_abbr[weekday], intervals[0], intervals[1])
         for weekday, intervals in enumerate(start_end_means)
     ]
-    return result
