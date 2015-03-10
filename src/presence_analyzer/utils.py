@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-"""
-Helper functions used in views.
-"""
+""" Helper functions used in views. """
 
 import csv
-from json import dumps
-from functools import wraps
 from datetime import datetime
+from datetime import timedelta
+from functools import wraps
+from itertools import groupby
+from json import dumps
+from operator import itemgetter
+
 
 from flask import Response
 
@@ -22,9 +24,7 @@ def jsonify(function):
     """
     @wraps(function)
     def inner(*args, **kwargs):
-        """
-        This docstring will be overridden by @wraps decorator.
-        """
+        """ This docstring will be overridden by @wraps decorator. """
         return Response(
             dumps(function(*args, **kwargs)),
             mimetype='application/json'
@@ -72,9 +72,7 @@ def get_data():
 
 
 def group_by_weekday(items):
-    """
-    Groups presence entries by weekday.
-    """
+    """ Groups presence entries by weekday. """
     result = [[], [], [], [], [], [], []]  # one list for every day in week
     for date in items:
         start = items[date]['start']
@@ -84,21 +82,47 @@ def group_by_weekday(items):
 
 
 def seconds_since_midnight(time):
-    """
-    Calculates amount of seconds since midnight.
-    """
+    """ Calculates amount of seconds since midnight. """
     return time.hour * 3600 + time.minute * 60 + time.second
 
 
 def interval(start, end):
-    """
-    Calculates inverval in seconds between two datetime.time objects.
-    """
+    """ Calculates inverval in seconds between two datetime.time objects. """
     return seconds_since_midnight(end) - seconds_since_midnight(start)
 
 
 def mean(items):
-    """
-    Calculates arithmetic mean. Returns zero for empty lists.
-    """
+    """ Calculates arithmetic mean. Returns zero for empty lists. """
     return float(sum(items)) / len(items) if len(items) > 0 else 0
+
+
+def group_by_start_end_means(items):
+    """ Groups presence entries by means of start and end times. """
+    start_end_times = [{'day': date.weekday(),
+                        'start': seconds_since_midnight(time_['start']),
+                        'end': seconds_since_midnight(time_['end'])}
+                       for (date, time_) in items.viewitems()]
+    start_end_times = sorted(start_end_times,
+                             lambda d1, d2: cmp(d1['day'], d2['day']))
+    start_means = group_time_means(start_end_times, 'start')
+    end_means = group_time_means(start_end_times, 'end')
+
+    return [(get_time_from_seconds(s), get_time_from_seconds(e))
+            for s, e in zip(start_means, end_means)]
+
+
+def group_time_means(times, time_field):
+    """
+    Calculates mean if a time collection.
+    Requires data sorted by a day identifier.
+    """
+    get_day = itemgetter('day')
+    means = [0] * 7
+    for key, group in groupby(times, get_day):
+        means[key] = int(mean(list(item[time_field] for item in group)))
+    return means
+
+
+def get_time_from_seconds(seconds):
+    """ Calculates time from seconds. """
+    return [int(e) for e in str(timedelta(seconds=seconds)).split(':')]
