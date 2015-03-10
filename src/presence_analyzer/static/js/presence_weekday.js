@@ -7,4 +7,4 @@ function visualize_user_data($, result) {
     loading.hide();
     var chart = new google.visualization.PieChart(chart_div[0]);
     chart.draw(data, options);
-})
+}

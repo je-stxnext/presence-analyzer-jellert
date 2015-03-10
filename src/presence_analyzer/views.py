@@ -20,9 +20,8 @@ log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 @app.route('/')
 def mainpage():
     """ Redirects to front page. """
-    #return render_template('/static/presence_weekday.html', name='mako')
-    #return render_template('presence_weekday.html', name='mako')
-    return redirect('/static/presence_weekday.html')
+    return render_template('presence_weekday.html', name='mako')
+    #return redirect('/static/presence_weekday_old.html')
 
 
 @app.route('/api/v1/users', methods=['GET'])

@@ -2,40 +2,43 @@
 <html lang=en>
 <head>
     <meta charset=utf-8>
+
     <title>Presence analyzer by template</title>
+
 
     <meta name="keywords" content="" />
     <meta name="description" content=""/>
     <meta name="author" content="STX Next sp. z o.o."/>
     <meta name="viewport" content="width=device-width; initial-scale=1.0">
 
-     <script type="text/javascript">
-     	debugger;
-     </script>
-
+    <link href="/static/css/normalize.css" media="all" rel="stylesheet" type="text/css" />
     <link href="/static/css/commons.css" media="all" rel="stylesheet" type="text/css" />
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
     <script src="/static/js/jquery.min.js"></script>
-
     <script src="/static/js/commons.js"></script>
 
 
+% for url in get_javascripts():
+<script type="text/javascript" src="${url}"></script>
+% endfor
+
+
      <script type="text/javascript">
-    /*
-        google.load("visualization", "1", {packages:["corechart"], 'language': 'en'});
-    */
+
+        //google.load("visualization", "1", {packages:["corechart"], 'language': 'en'});
+
 
         (function($) {
             $(document).ready(function(){
 
-debugger;
+//aaa
+//debugger;
             	load_users($);
 
-            	//change_user($, "/api/v1/presence_weekday/", visualize_user_data);
+            	change_user($, "/api/v1/presence_weekday/", visualize_user_data);
 
-            	/*
+/*
 
                 change_user($, "/api/v1/presence_weekday/",	 function ($, result) {
                 	var chart_div = $('#chart_div');
@@ -88,12 +91,8 @@ debugger;
 
 
     	<div class="header">
-            <h1>Presence analyzer by template v5</h1>
-<!--
+
             <%block name="header"/>
--->
-            <h1>Presence analyzer by template v5</h1>
-
             <ul>
                 <li id="selected"><a href="/static/presence_weekday.html">Presence by weekday</a></li>
                 <li><a href="/static/mean_time_weekday.html">Presence mean time</a></li>
@@ -102,19 +101,8 @@ debugger;
         </div>
 
 
-<!--
-        <div id="header">
-            <h1>Presence analyzer by template v5</h1>
-
-            <ul>
-                <li id="selected"><a href="/static/presence_weekday.html">Presence by weekday</a></li>
-                <li><a href="/static/mean_time_weekday.html">Presence mean time</a></li>
-                <li><a href="/static/presence_start_end.html">Presence by mean time</a></li>
-            </ul>
-        </div>
- -->
         <div id="content">
-            <h2>Presence by weekday</h2>
+            <%block name="sub_title"/>
             <p>
                 <select id="user_id" style="display: none">
                     <option value="">--</option>
@@ -129,5 +117,11 @@ debugger;
 
     </div>
 </body>
+
+
+
+
 </html>
+
+
 

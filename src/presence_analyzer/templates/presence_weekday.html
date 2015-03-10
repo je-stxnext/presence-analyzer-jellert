@@ -1,13 +1,17 @@
 <%inherit file="base_template.html" />
-
-
-<%! scripts = ['/static/js/presence_weekday.js'] %>
-
-
+<%
+def get_javascripts():
+   	return ['/static/js/presence_weekday.js']
+%>
 
 <%block name="header">
-    Presence analyzer inherited BBB
+	<h1>Presence analyzer by template</h1>
 </%block>
+
+<%block name="sub_title">
+    <h2>Presence by weekday</h2>
+</%block>
+
 
 
 <!--
