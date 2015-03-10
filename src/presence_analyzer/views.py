@@ -4,9 +4,12 @@ Defines views.
 """
 
 import calendar
-from flask import redirect, abort
+from flask import abort, redirect
+from flask.ext.mako import render_template
+#from mako.template import Template
 
 from presence_analyzer.main import app
+from presence_analyzer.main import mako
 from presence_analyzer.utils import jsonify, get_data, mean, group_by_weekday,\
     group_by_start_end_means
 
@@ -17,6 +20,8 @@ log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 @app.route('/')
 def mainpage():
     """ Redirects to front page. """
+    #return render_template('/static/presence_weekday.html', name='mako')
+    #return render_template('presence_weekday.html', name='mako')
     return redirect('/static/presence_weekday.html')
 
 
@@ -83,3 +88,16 @@ def presence_start_end_view(user_id):
         (calendar.day_abbr[weekday], intervals[0], intervals[1])
         for weekday, intervals in enumerate(start_end_means)
     ]
+
+
+@app.route('/api/v1/base_template/<int:user_id>', methods=['GET', 'POST'])
+def base_template_view(user_id):
+    """ view using test template """
+    data = get_data()
+    if user_id not in data:
+        log.debug('User %s not found!', user_id)
+        abort(404)
+
+    #template = mako.Template(filename="base_template.html")
+    #return template.render(user_id=user_id)
+    return render_template('base_template.html', name='mako', user_id=user_id)

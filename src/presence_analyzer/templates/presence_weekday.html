@@ -1,6 +1,25 @@
 <%inherit file="base_template.html" />
 
 
+<%! scripts = ['/static/js/presence_weekday.js'] %>
+
+
+
+<%block name="header">
+    Presence analyzer inherited BBB
+</%block>
+
+
+<!--
+<%!
+    includes = [
+        '<link rel="stylesheet" type="text/css" href="/static/css/commons.css"/>',
+        '<script type="text/javascript" src="/static/js/commons.js"></script>'
+    ]
+%>
+-->
+
+<!--
     <script type="text/javascript">
     	function visualize_user_data($, result) {
     		var chart_div = $('#chart_div');
@@ -13,10 +32,4 @@
         	chart.draw(data, options);
     	})
     </script>
-
-<%!
-    includes = [
-        '<link rel="stylesheet" type="text/css" href="/static/css/commons.css"/>',
-        '<script type="text/javascript" src="/static/js/commons.js"></script>'
-    ]
-%>
+ -->
