@@ -4,6 +4,7 @@ Flask app initialization.
 """
 import os.path
 from flask import Flask
+# pylint: disable=no-name-in-module,import-error
 from flask.ext.mako import MakoTemplates
 
 
@@ -18,5 +19,5 @@ app.config.update(
     DEBUG=True,
     DATA_CSV=MAIN_DATA_CSV
 )
-mako = MakoTemplates()
-mako.init_app(app)
+
+MakoTemplates().init_app(app)

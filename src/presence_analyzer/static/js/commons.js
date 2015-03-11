@@ -1,5 +1,3 @@
-google.load("visualization", "1", {packages:["corechart"], 'language': 'en'});
-
 function parseInterval(value) {
     var result = new Date(1,1,1);
     result.setMilliseconds(value*1000);
@@ -18,7 +16,7 @@ function load_users($){
 	});
 }
 
-function change_user($, url, change_user_handler){
+function show_user_data($, url, show_user_data_handler){
 	var loading = $('#loading');
     $('#user_id').change(function(){
         var selected_user = $("#user_id").val();
@@ -26,14 +24,13 @@ function change_user($, url, change_user_handler){
         if(selected_user) {
             loading.show();
             chart_div.hide();
-            $.getJSON(url+selected_user, function(result) {
-            	change_user_handler($, result);
-            });
+           	$.getJSON(url+selected_user, function(result) {
+           		console.log(result);
+           		show_user_data_handler($, result);
+           	});
+
         }
     });
-
-
-
 }
 
 

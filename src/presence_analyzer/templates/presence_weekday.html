@@ -1,31 +1,16 @@
 <%inherit file="base_template.html" />
-<%
-def get_javascripts():
-   	return ['/static/js/presence_weekday.js']
-%>
 
 <%block name="header">
-	<h1>Presence analyzer by template</h1>
+	<h1>Presence analyzer</h1>
 </%block>
 
 <%block name="sub_title">
-    <h2>Presence by weekday</h2>
+    <h2>Presence by weekday (template)</h2>
 </%block>
 
-
-
-<!--
-<%!
-    includes = [
-        '<link rel="stylesheet" type="text/css" href="/static/css/commons.css"/>',
-        '<script type="text/javascript" src="/static/js/commons.js"></script>'
-    ]
-%>
--->
-
-<!--
+<%block name="custom_js">
     <script type="text/javascript">
-    	function visualize_user_data($, result) {
+    	function show_user_data_handler($, result) {
     		var chart_div = $('#chart_div');
     		var loading = $('#loading');
         	var data = google.visualization.arrayToDataTable(result);
@@ -34,6 +19,15 @@ def get_javascripts():
         	loading.hide();
         	var chart = new google.visualization.PieChart(chart_div[0]);
         	chart.draw(data, options);
-    	})
+    	}
+
+    	function get_change_user_url() {
+    		return "/api/v1/presence_weekday/"
+    	}
+
+    	function get_page_url() {
+    		return '/static/presence_weekday.html';
+    	}
+
     </script>
- -->
+</%block>

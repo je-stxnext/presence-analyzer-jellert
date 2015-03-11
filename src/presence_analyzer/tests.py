@@ -84,22 +84,6 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
 
-    def test_base_template_view(self):
-        """ Test of base tamplate view. """
-        resp = self.client.get('/api/v1/base_template/%s' % 11)
-        self.assertEqual(resp.status_code, 200)
-
-#         data = utils.get_data()
-#         min_user = min(data.keys())
-#
-#         resp = self.client.get('/api/v1/base_template/%s' % (min_user-1))
-#         self.assertEqual(resp.status_code, 404)
-#
-#         for user_id in data:
-#             resp = self.client.get('/api/v1/base_template/%s' % user_id)
-#             self.assertEqual(resp.status_code, 200)
-#             #self.assertEqual(resp.content_type, 'application/json')
-
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     """ Utility functions tests. """

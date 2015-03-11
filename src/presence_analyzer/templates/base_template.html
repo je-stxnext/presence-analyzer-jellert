@@ -16,85 +16,53 @@
 
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script src="/static/js/jquery.min.js"></script>
+
+	<script type="text/javascript">
+    	function get_page_url() {
+    		return null;
+    	}
+    </script>
+
+   	<%block name="custom_js"/>
+
     <script src="/static/js/commons.js"></script>
-
-
-% for url in get_javascripts():
-<script type="text/javascript" src="${url}"></script>
-% endfor
-
-
      <script type="text/javascript">
 
-        //google.load("visualization", "1", {packages:["corechart"], 'language': 'en'});
+        google.load("visualization", "1", {packages:["corechart", "timeline"], 'language': 'en'});
 
 
         (function($) {
             $(document).ready(function(){
-
-//aaa
-//debugger;
-            	load_users($);
-
-            	change_user($, "/api/v1/presence_weekday/", visualize_user_data);
-
-/*
-
-                change_user($, "/api/v1/presence_weekday/",	 function ($, result) {
-                	var chart_div = $('#chart_div');
-                	var loading = $('#loading');
-                    var data = google.visualization.arrayToDataTable(result);
-                    var options = {};
-                    chart_div.show();
-                    loading.hide();
-                    var chart = new google.visualization.PieChart(chart_div[0]);
-                    chart.draw(data, options);
-                });
-*/
-
-                /*
-
-                var loading = $('#loading');
-                $.getJSON("/api/v1/users", function(result) {
-                    var dropdown = $("#user_id");
-                    $.each(result, function(item) {
-                        dropdown.append($("<option />").val(this.user_id).text(this.name));
-                    });
-                    dropdown.show();
-                    loading.hide();
-                });
-
-                $('#user_id').change(function(){
-                    var selected_user = $("#user_id").val();
-                    var chart_div = $('#chart_div');
-                    if(selected_user) {
-                        loading.show();
-                        chart_div.hide();
-                        $.getJSON("/api/v1/presence_weekday/"+selected_user, function(result) {
-                            var data = google.visualization.arrayToDataTable(result);
-                            var options = {};
-                            chart_div.show();
-                            loading.hide();
-                            var chart = new google.visualization.PieChart(chart_div[0]);
-                            chart.draw(data, options);
-                        });
-                    }
-                });
-                */
+	           	load_users($);
+	           	show_user_data($, get_change_user_url(), show_user_data_handler);
             });
         })(jQuery);
+
+
+    	$(window).bind("load", function() {
+    		url = get_page_url()
+    		if (url != null) {
+    			var header = document.getElementById("header");
+    			var li_list = header.getElementsByTagName("LI")
+    			for (i=0; i<li_list.length; i++) {
+    				var a = li_list[i].getElementsByTagName("A");
+    				if (a[0].href.lastIndexOf(get_page_url()) > 0) {
+    					li_list[i].id = "selected";
+    					break;
+    				}
+    			}
+    		}
+    	});
+
     </script>
 </head>
 
 <body>
     <div id="main">
-
-
-    	<div class="header">
-
+    	<div id="header">
             <%block name="header"/>
             <ul>
-                <li id="selected"><a href="/static/presence_weekday.html">Presence by weekday</a></li>
+                <li><a href="/static/presence_weekday.html">Presence by weekday</a></li>
                 <li><a href="/static/mean_time_weekday.html">Presence mean time</a></li>
                 <li><a href="/static/presence_start_end.html">Presence by mean time</a></li>
             </ul>
@@ -117,11 +85,4 @@
 
     </div>
 </body>
-
-
-
-
 </html>
-
-
-
