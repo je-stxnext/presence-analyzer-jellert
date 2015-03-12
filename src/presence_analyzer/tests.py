@@ -58,6 +58,9 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
 
+        resp = self.client.get('/static/mean_time_weekday.html')
+        self.assertEqual(resp.status_code, 200)
+
     def test_presence_weekday(self):
         """ Test presence weekday. """
         data = utils.get_data()
@@ -71,6 +74,9 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
 
+        resp = self.client.get('/static/presence_weekday.html')
+        self.assertEqual(resp.status_code, 200)
+
     def test_presence_start_end_view(self):
         """ Test presence of start and end means. """
         data = utils.get_data()
@@ -83,6 +89,9 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             resp = self.client.get('/api/v1/presence_start_end/%s' % user_id)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
+
+        resp = self.client.get('/static/presence_start_end.html')
+        self.assertEqual(resp.status_code, 200)
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
