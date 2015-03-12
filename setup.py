@@ -27,6 +27,7 @@ setup(
     install_requires=[
         'setuptools',
         'Flask',
+        'mako',
     ],
     entry_points="""
     """,

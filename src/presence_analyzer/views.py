@@ -4,11 +4,16 @@ Defines views.
 """
 
 import calendar
-from flask import redirect, abort
+from flask import abort
+from flask import redirect
+from flask_mako import render_template
 
 from presence_analyzer.main import app
-from presence_analyzer.utils import jsonify, get_data, mean, group_by_weekday,\
-    group_by_start_end_means
+from presence_analyzer.utils import get_data
+from presence_analyzer.utils import group_by_start_end_means
+from presence_analyzer.utils import group_by_weekday
+from presence_analyzer.utils import mean
+from presence_analyzer.utils import jsonify
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -83,3 +88,21 @@ def presence_start_end_view(user_id):
         (calendar.day_abbr[weekday], intervals[0], intervals[1])
         for weekday, intervals in enumerate(start_end_means)
     ]
+
+
+@app.route('/static/mean_time_weekday.html', methods=['GET'])
+def mean_time_weekday_template_view():
+    """ view using mean time template """
+    return render_template('mean_time_weekday.html', name='mako')
+
+
+@app.route('/static/presence_weekday.html', methods=['GET'])
+def presence_weekday_template_view():
+    """ view using presence template """
+    return render_template('presence_weekday.html', name='mako')
+
+
+@app.route('/static/presence_start_end.html', methods=['GET'])
+def presence_start_end_template_view():  # pylint: disable=invalid-name
+    """ view using presence start and template """
+    return render_template('presence_start_end.html', name='mako')

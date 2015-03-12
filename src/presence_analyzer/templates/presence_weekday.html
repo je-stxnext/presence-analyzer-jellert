@@ -1,0 +1,26 @@
+<%inherit file="base_template.html" />
+
+<%block name="header">
+	<h1>Presence analyzer</h1>
+</%block>
+
+<%block name="sub_title">
+    <h2>Presence by weekday</h2>
+</%block>
+
+<%block name="custom_js">
+    <script type="text/javascript">
+    	function show_user_data_handler(chart_div, loading, result) {
+        	var data = google.visualization.arrayToDataTable(result);
+        	var options = {};
+        	chart_div.show();
+        	loading.hide();
+        	var chart = new google.visualization.PieChart(chart_div[0]);
+        	chart.draw(data, options);
+    	}
+
+    	function get_change_user_url() {
+    		return "/api/v1/presence_weekday/"
+    	}
+    </script>
+</%block>

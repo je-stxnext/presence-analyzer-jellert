@@ -7,8 +7,9 @@ import json
 import datetime
 import unittest
 
-# pylint: disable=unused-import
-from presence_analyzer import main, views, utils
+from presence_analyzer import main
+from presence_analyzer import utils
+from presence_analyzer import views  # pylint: disable=unused-import
 from presence_analyzer.utils import get_time_from_seconds
 
 
@@ -58,6 +59,9 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
 
+        resp = self.client.get('/static/mean_time_weekday.html')
+        self.assertEqual(resp.status_code, 200)
+
     def test_presence_weekday(self):
         """ Test presence weekday. """
         data = utils.get_data()
@@ -71,6 +75,9 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
 
+        resp = self.client.get('/static/presence_weekday.html')
+        self.assertEqual(resp.status_code, 200)
+
     def test_presence_start_end_view(self):
         """ Test presence of start and end means. """
         data = utils.get_data()
@@ -83,6 +90,9 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             resp = self.client.get('/api/v1/presence_start_end/%s' % user_id)
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(resp.content_type, 'application/json')
+
+        resp = self.client.get('/static/presence_start_end.html')
+        self.assertEqual(resp.status_code, 200)
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):

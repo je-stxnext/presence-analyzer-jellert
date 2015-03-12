@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+
+    <title>Presence analyzer by template</title>
+
+
+    <meta name="keywords" content="" />
+    <meta name="description" content=""/>
+    <meta name="author" content="STX Next sp. z o.o."/>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+    <link href="/static/css/normalize.css" media="all" rel="stylesheet" type="text/css" />
+    <link href="/static/css/commons.css" media="all" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script src="/static/js/jquery.min.js"></script>
+
+	<script type="text/javascript">
+
+		function load_users($){
+			var loading = $('#loading');
+			$.getJSON("/api/v1/users", function(result) {
+			    var dropdown = $("#user_id");
+			    $.each(result, function(item) {
+			        dropdown.append($("<option />").val(this.user_id).text(this.name));
+			    });
+			    dropdown.show();
+			    loading.hide();
+			});
+		}
+
+		function show_user_data($, url, show_user_data_handler){
+			var loading = $('#loading');
+		    $('#user_id').change(function(){
+		        var selected_user = $("#user_id").val();
+		        var chart_div = $('#chart_div');
+		        if(selected_user) {
+		            loading.show();
+		            chart_div.hide();
+		           	$.getJSON(url+selected_user, function(result) {
+		           		console.log(result);
+		           		result = preprocess_user_data($, result);
+		           		show_user_data_handler(chart_div, loading, result);
+		           	});
+
+		        }
+		    });
+		}
+
+    	function preprocess_user_data($, result) {
+    		return result;
+    	}
+    </script>
+
+   	<%block name="custom_js"/>
+
+    <script src="/static/js/commons.js"></script>
+    <script type="text/javascript">
+
+        google.load("visualization", "1", {packages:["corechart", "timeline"], 'language': 'en'});
+
+        (function($) {
+            $(document).ready(function(){
+	           	load_users($);
+	           	show_user_data($, get_change_user_url(), show_user_data_handler);
+            });
+        })(jQuery);
+
+    </script>
+</head>
+
+<body>
+    <div id="main">
+    	<div id="header">
+            <%block name="header"/>
+            <ul>
+            	<li ${"id='selected'" if self.name.endswith('presence_weekday.html') else ""}>
+                	<a href="/static/presence_weekday.html">Presence by weekday</a>
+                </li>
+            	<li ${"id='selected'" if self.name.endswith('mean_time_weekday.html') else ""}>
+                	<a href="/static/mean_time_weekday.html">Presence mean time</a>
+                </li>
+            	<li ${"id='selected'" if self.name.endswith('presence_start_end.html') else ""}>
+                	<a href="/static/presence_start_end.html">Presence by mean time</a>
+                </li>
+            </ul>
+        </div>
+
+
+        <div id="content">
+            <%block name="sub_title"/>
+            <p>
+                <select id="user_id" style="display: none">
+                    <option value="">--</option>
+                </select>
+                <div id="chart_div" style="display: none">
+                </div>
+                <div id="loading">
+                    <img src="/static/img/loading.gif" />
+                </div>
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

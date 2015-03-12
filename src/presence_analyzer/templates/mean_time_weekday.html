@@ -1,0 +1,46 @@
+<%inherit file="base_template.html" />
+
+<%block name="header">
+	<h1>Presence analyzer</h1>
+</%block>
+
+<%block name="sub_title">
+    <h2>Presence mean time by weekday</h2>
+</%block>
+
+<%block name="custom_js">
+    <script type="text/javascript">
+
+
+    	function preprocess_user_data($, result) {
+            $.each(result, function(index, value) {
+                value[1] = parseInterval(value[1]);
+            });
+            return result;
+    	}
+
+	    function show_user_data_handler(chart_div, loading, result) {
+
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Weekday');
+            data.addColumn('datetime', 'Mean time (h:m:s)');
+            data.addRows(result);
+            var options = {
+                hAxis: {title: 'Weekday'}
+            };
+            var formatter = new google.visualization.DateFormat({pattern: 'HH:mm:ss'});
+            formatter.format(data, 1);
+
+            chart_div.show();
+            loading.hide();
+            var chart = new google.visualization.ColumnChart(chart_div[0]);
+            chart.draw(data, options);
+	    }
+
+
+    	function get_change_user_url() {
+    		return "/api/v1/mean_time_weekday/";
+    	}
+
+    </script>
+</%block>
