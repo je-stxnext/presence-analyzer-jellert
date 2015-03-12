@@ -11,24 +11,23 @@
 <%block name="custom_js">
     <script type="text/javascript">
 
-	    function show_user_data_handler($, result) {
-
-	        var selected_user = $("#user_id").val();
-            var chart_div = $('#chart_div');
-            var loading = $('#loading');
-
-            result_data = []
+		function preprocess_user_data($, result) {
+            result_data = [];
             $.each(result, function(index, value) {
-                    result_data[index] = [value[0],
-                                     new Date(1, 1, 1, parseInt(value[1][0]), parseInt(value[1][1]), parseInt(value[1][2])),
-                                     new Date(1, 1, 1, parseInt(value[2][0]), parseInt(value[2][1]), parseInt(value[2][2]))]
-            });
+                result_data[index] = [value[0],
+                                 new Date(1, 1, 1, parseInt(value[1][0]), parseInt(value[1][1]), parseInt(value[1][2])),
+                                 new Date(1, 1, 1, parseInt(value[2][0]), parseInt(value[2][1]), parseInt(value[2][2]))]
+        	});
+			return result_data;
+		}
+
+	    function show_user_data_handler(chart_div, loading, result) {
 
             var data = new google.visualization.DataTable();
             data.addColumn('string', 'Weekday');
             data.addColumn({ type: 'datetime', id: 'Start' });
             data.addColumn({ type: 'datetime', id: 'End' });
-            data.addRows(result_data);
+            data.addRows(result);
             var options = {
                 hAxis: {title: 'Weekday'}
             };

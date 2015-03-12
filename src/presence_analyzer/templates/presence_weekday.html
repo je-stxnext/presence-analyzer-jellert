@@ -10,9 +10,7 @@
 
 <%block name="custom_js">
     <script type="text/javascript">
-    	function show_user_data_handler($, result) {
-    		var chart_div = $('#chart_div');
-    		var loading = $('#loading');
+    	function show_user_data_handler(chart_div, loading, result) {
         	var data = google.visualization.arrayToDataTable(result);
         	var options = {};
         	chart_div.show();
