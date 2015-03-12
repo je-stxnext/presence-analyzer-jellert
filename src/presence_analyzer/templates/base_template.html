@@ -49,10 +49,6 @@
 		    });
 		}
 
-    	function get_page_url() {
-    		return null;
-    	}
-
     	function preprocess_user_data($, result) {
     		return result;
     	}
@@ -61,10 +57,9 @@
    	<%block name="custom_js"/>
 
     <script src="/static/js/commons.js"></script>
-     <script type="text/javascript">
+    <script type="text/javascript">
 
         google.load("visualization", "1", {packages:["corechart", "timeline"], 'language': 'en'});
-
 
         (function($) {
             $(document).ready(function(){
@@ -72,22 +67,6 @@
 	           	show_user_data($, get_change_user_url(), show_user_data_handler);
             });
         })(jQuery);
-
-
-    	$(window).bind("load", function() {
-    		url = get_page_url()
-    		if (url != null) {
-    			var header = document.getElementById("header");
-    			var li_list = header.getElementsByTagName("LI")
-    			for (i=0; i<li_list.length; i++) {
-    				var a = li_list[i].getElementsByTagName("A");
-    				if (a[0].href.lastIndexOf(get_page_url()) > 0) {
-    					li_list[i].id = "selected";
-    					break;
-    				}
-    			}
-    		}
-    	});
 
     </script>
 </head>
@@ -97,9 +76,15 @@
     	<div id="header">
             <%block name="header"/>
             <ul>
-                <li><a href="/static/presence_weekday.html">Presence by weekday</a></li>
-                <li><a href="/static/mean_time_weekday.html">Presence mean time</a></li>
-                <li><a href="/static/presence_start_end.html">Presence by mean time</a></li>
+            	<li ${"id='selected'" if self.name.endswith('presence_weekday.html') else ""}>
+                	<a href="/static/presence_weekday.html">Presence by weekday</a>
+                </li>
+            	<li ${"id='selected'" if self.name.endswith('mean_time_weekday.html') else ""}>
+                	<a href="/static/mean_time_weekday.html">Presence mean time</a>
+                </li>
+            	<li ${"id='selected'" if self.name.endswith('presence_start_end.html') else ""}>
+                	<a href="/static/presence_start_end.html">Presence by mean time</a>
+                </li>
             </ul>
         </div>
 

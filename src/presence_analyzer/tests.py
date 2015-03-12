@@ -7,8 +7,9 @@ import json
 import datetime
 import unittest
 
-# pylint: disable=unused-import
-from presence_analyzer import main, views, utils
+from presence_analyzer import main
+from presence_analyzer import utils
+from presence_analyzer import views  # pylint: disable=unused-import
 from presence_analyzer.utils import get_time_from_seconds
 
 

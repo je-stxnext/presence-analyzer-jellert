@@ -4,13 +4,16 @@ Defines views.
 """
 
 import calendar
-from flask import abort, redirect
-# pylint: disable=no-name-in-module,import-error
-from flask.ext.mako import render_template
+from flask import abort
+from flask import redirect
+from flask_mako import render_template
 
 from presence_analyzer.main import app
-from presence_analyzer.utils import jsonify, get_data, mean, group_by_weekday,\
-    group_by_start_end_means
+from presence_analyzer.utils import get_data
+from presence_analyzer.utils import group_by_start_end_means
+from presence_analyzer.utils import group_by_weekday
+from presence_analyzer.utils import mean
+from presence_analyzer.utils import jsonify
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -100,6 +103,6 @@ def presence_weekday_template_view():
 
 
 @app.route('/static/presence_start_end.html', methods=['GET'])
-def presence_start_end_template_view():
+def presence_start_end_template_view():  # pylint: disable=invalid-name
     """ view using presence start and template """
     return render_template('presence_start_end.html', name='mako')
