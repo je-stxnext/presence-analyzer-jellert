@@ -156,6 +156,10 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertGreater(len(data), 0)
         self.assertIsInstance(data[10], dict)
 
+    def test_get_users_url(self):
+        url = helpers.get_users_url()
+        self.assertIsNotNone(url)
+
 
 def suite():
     """ Default test suite. """
