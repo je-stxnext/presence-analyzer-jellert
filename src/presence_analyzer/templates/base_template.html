@@ -36,6 +36,7 @@
 		    $('#user_id').change(function(){
 		        var selected_user = $("#user_id").val();
 		        var chart_div = $('#chart_div');
+		        var picture_div = $('#picture_div');
 		        if(selected_user) {
 		            loading.show();
 		            chart_div.hide();
@@ -44,7 +45,10 @@
 		           		result = preprocess_user_data($, result);
 		           		show_user_data_handler(chart_div, loading, result);
 		           	});
-
+		           	$.getJSON('/api/v1/pictures/'+selected_user, function(result) {
+						picture_div.html("<img src='" + result + "'/>");
+			           	picture_div.show();
+		           	});
 		        }
 		    });
 		}
@@ -95,7 +99,9 @@
                 <select id="user_id" style="display: none">
                     <option value="">--</option>
                 </select>
-                <div id="chart_div" style="display: none">
+                <div class="container">
+                 	<div id="picture_div"></div>
+                	<div id="chart_div" style="display: none"></div>
                 </div>
                 <div id="loading">
                     <img src="/static/img/loading.gif" />

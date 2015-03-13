@@ -13,6 +13,7 @@ from presence_analyzer import main
 from presence_analyzer import utils
 from presence_analyzer import views  # pylint: disable=unused-import
 from presence_analyzer.utils import get_time_from_seconds
+from presence_analyzer.utils import get_users_from_xml
 
 
 TEST_DATA_CSV = os.path.join(
@@ -100,6 +101,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
         resp = self.client.get('/static/presence_start_end.html')
         self.assertEqual(resp.status_code, 200)
+
+    def test_user_picture_view(self):
+        """ Test presence of a user picture. """
+        data = get_users_from_xml()
+        min_user = min(data.keys())
+
+        resp = self.client.get('/api/v1/pictures/%s' % min_user)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content_type, 'application/json')
+
+        resp = self.client.get('/api/v1/pictures/%s' % (min_user-1))
+        self.assertEqual(resp.status_code, 404)
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):

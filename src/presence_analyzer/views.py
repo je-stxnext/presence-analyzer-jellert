@@ -109,3 +109,15 @@ def presence_weekday_template_view():
 def presence_start_end_template_view():  # pylint: disable=invalid-name
     """ view using presence start and template """
     return render_template('presence_start_end.html', name='mako')
+
+
+@app.route('/api/v1/pictures/<int:user_id>', methods=['GET'])
+@jsonify
+def user_picture_view(user_id):
+    """ Returns mean presence time of given user grouped by weekday. """
+    data = get_users_from_xml()
+    if user_id not in data:
+        log.debug('User %s not found!', user_id)
+        abort(404)
+
+    return data[int(user_id)].get('url')
