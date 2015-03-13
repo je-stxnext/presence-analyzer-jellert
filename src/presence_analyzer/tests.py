@@ -2,11 +2,13 @@
 """
 Presence analyzer unit tests.
 """
-import os.path
-import json
+
 import datetime
+import json
+import os.path
 import unittest
 
+from presence_analyzer import helpers
 from presence_analyzer import main
 from presence_analyzer import utils
 from presence_analyzer import views  # pylint: disable=unused-import
@@ -17,6 +19,10 @@ TEST_DATA_CSV = os.path.join(
     os.path.dirname(__file__), '..', '..', 'runtime', 'data', 'test_data.csv'
 )
 
+TEST_DATA_XML = os.path.join(
+    os.path.dirname(__file__), '..', '..', 'runtime', 'data', 'test_data.xml'
+)
+
 
 # pylint: disable=maybe-no-member, too-many-public-methods
 class PresenceAnalyzerViewsTestCase(unittest.TestCase):
@@ -24,7 +30,8 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
     def setUp(self):
         """ Before each test, set up a environment. """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({'DATA_CSV': TEST_DATA_CSV,
+                                'DATA_XML': TEST_DATA_XML})
         self.client = main.app.test_client()
 
     def tearDown(self):
@@ -43,7 +50,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 3)
         self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
 
     def test_mean_time_weekday(self):
@@ -100,7 +107,8 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
 
     def setUp(self):
         """ Before each test, set up a environment. """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({'DATA_CSV': TEST_DATA_CSV,
+                                'DATA_XML': TEST_DATA_XML})
 
     def tearDown(self):
         """ Get rid of unused objects after each test. """
@@ -126,6 +134,14 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertEqual(get_time_from_seconds(60), [0, 1, 0])
         self.assertEqual(get_time_from_seconds(50714), [14, 05, 14])
         self.assertRaises(ValueError, get_time_from_seconds, -123)
+
+    def test_get_users_from_xml(self):
+        """ Test parsing of xml users file. """
+        self.assertIsNotNone(os.path.exists(helpers.get_users_xml_file()))
+        data = utils.get_users_from_xml()
+        self.assertIsNotNone(data)
+        self.assertGreater(len(data), 0)
+        self.assertIsInstance(data[10], dict)
 
 
 def suite():

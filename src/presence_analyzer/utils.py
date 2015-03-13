@@ -2,19 +2,20 @@
 """ Helper functions used in views. """
 
 import csv
+import logging
+
 from datetime import datetime
 from datetime import timedelta
+from flask import Response
 from functools import wraps
 from itertools import groupby
 from json import dumps
+from lxml import etree
 from operator import itemgetter
-
-
-from flask import Response
 
 from presence_analyzer.main import app
 
-import logging
+
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
@@ -126,3 +127,25 @@ def group_time_means(times, time_field):
 def get_time_from_seconds(seconds):
     """ Calculates time from seconds. """
     return [int(e) for e in str(timedelta(seconds=seconds)).split(':')]
+
+
+def get_users_from_xml():
+    """  Extracts presence data from XML file and groups it by name. """
+    with open(app.config['DATA_XML'], 'r') as xmlfile:
+        # pylint: disable=no-member
+        root = etree.parse(xmlfile).getroot()
+
+        server = root.find("server")
+        url_parts = [server.findtext(item)
+                     for item in ["protocol", "host", "port", "location"]]
+
+        data = {}
+        for user in root.find("users").getchildren():
+            _id = user.get("id")
+            name = user.findtext("name")
+            url_parts[3] = user.findtext("avatar")
+            if _id and name:
+                # pylint: disable=star-args
+                data[int(_id)] = {u'name': name,
+                                  u'url': '{}://{}:{}{}'.format(*url_parts)}
+    return data
