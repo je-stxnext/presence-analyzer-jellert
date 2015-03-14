@@ -12,8 +12,6 @@ from presence_analyzer import helpers
 from presence_analyzer import main
 from presence_analyzer import utils
 from presence_analyzer import views  # pylint: disable=unused-import
-from presence_analyzer.utils import get_time_from_seconds
-from presence_analyzer.utils import get_users_from_xml
 
 
 TEST_DATA_CSV = os.path.join(
@@ -104,7 +102,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
     def test_user_picture_view(self):
         """ Test presence of a user picture. """
-        data = get_users_from_xml()
+        data = utils.get_users_from_xml()
         min_user = min(data.keys())
 
         resp = self.client.get('/api/v1/pictures/%s' % min_user)
@@ -143,22 +141,41 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
 
     def test_get_time_from_seconds(self):
         """ Test for conversion from seconds to hours, minutes, seconds. """
-        self.assertEqual(get_time_from_seconds(0), [0, 0, 0])
-        self.assertEqual(get_time_from_seconds(60), [0, 1, 0])
-        self.assertEqual(get_time_from_seconds(50714), [14, 05, 14])
-        self.assertRaises(ValueError, get_time_from_seconds, -123)
+        self.assertEqual(utils.get_time_from_seconds(0), [0, 0, 0])
+        self.assertEqual(utils.get_time_from_seconds(60), [0, 1, 0])
+        self.assertEqual(utils.get_time_from_seconds(50714), [14, 05, 14])
+        self.assertRaises(ValueError, utils.get_time_from_seconds, -123)
 
     def test_get_users_from_xml(self):
         """ Test parsing of xml users file. """
-        self.assertIsNotNone(os.path.exists(helpers.get_users_xml_file()))
         data = utils.get_users_from_xml()
         self.assertIsNotNone(data)
         self.assertGreater(len(data), 0)
         self.assertIsInstance(data[10], dict)
 
+
+class PresenceAnalyzerHelpersTestCase(unittest.TestCase):
+    """ Helper functions tests. """
+
+    def setUp(self):
+        """ Before each test, set up a environment. """
+        pass
+
+    def tearDown(self):
+        """ Get rid of unused objects after each test. """
+        pass
+
+    def test_get_users_from_xml(self):
+        """ Test parsing of xml users file. """
+        self.assertIsNotNone(os.path.exists(helpers.get_users_xml_file()))
+
     def test_get_users_url(self):
-        url = helpers.get_users_url()
-        self.assertIsNotNone(url)
+        """ Test parsing of xml users file. """
+        self.assertIsNotNone(helpers.get_users_url())
+
+    def test_save_user_from_www(self):
+        """ Test saving of xml user file from WWW. """
+        self.assertTrue(helpers.save_users_from_www())
 
 
 def suite():
@@ -166,6 +183,7 @@ def suite():
     base_suite = unittest.TestSuite()
     base_suite.addTest(unittest.makeSuite(PresenceAnalyzerViewsTestCase))
     base_suite.addTest(unittest.makeSuite(PresenceAnalyzerUtilsTestCase))
+    base_suite.addTest(unittest.makeSuite(PresenceAnalyzerHelpersTestCase))
     return base_suite
 
 
