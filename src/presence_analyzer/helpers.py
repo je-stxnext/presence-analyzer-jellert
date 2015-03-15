@@ -47,3 +47,10 @@ def save_users_from_www():
             else:
                 LOG.debug('Improper users xml file !', exc_info=True)
     return False
+
+
+if __name__ == "__main__":
+    if save_users_from_www():
+        print 'The users file correctly saved'
+    else:
+        print 'The users file NOT saved !'
