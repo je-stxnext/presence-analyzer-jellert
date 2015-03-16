@@ -6,6 +6,8 @@ Presence analyzer unit tests.
 import datetime
 import json
 import os.path
+import threading
+import time
 import unittest
 
 from presence_analyzer import helpers
@@ -164,13 +166,50 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
 
     def test_cache(self):
         """ Test cache functionality. """
-        cache_data = utils.cache(600)(utils.get_users_from_xml)()
+        self.assertEqual(id(self.get_cache_data(100)),
+                         id(self.get_cache_data(100)))
+
+        cache_data = self.get_cache_data(2)
+        time.sleep(4)
+        cache_data_2 = self.get_cache_data(2)
+        self.assertNotEqual(id(cache_data), id(cache_data_2))
+
+    def get_cache_data(self, seconds):
+        """ Helper method to get decorated cache data. """
+        cache_data = utils.cache(seconds)(utils.get_users_from_xml)()
         self.assertIsInstance(cache_data, dict)
         self.assertGreater(len(cache_data), 0)
         self.assertIsInstance(cache_data[10], dict)
+        return cache_data
 
-        cache_data_2 = utils.cache(600)(utils.get_users_from_xml)()
-        self.assertEqual(id(cache_data), id(cache_data_2))
+    def test_save_threading_cache(self):
+        """ Test save threading of cache. """
+
+        class CacheThread(threading.Thread):
+            """ Cache thread. """
+
+            def __init__(self):
+                super(CacheThread, self).__init__()
+                self._id = None
+
+            def run(self):
+                """ Thread activity. """
+                self._id = id(utils.cache(600)(utils.get_users_from_xml)())
+
+            def cache_id(self):
+                """ Cache id. """
+                return self._id
+
+        num_threads = 20
+        cache_threads = []
+        for _ in range(num_threads):
+            cache_thread = CacheThread()
+            cache_threads.append(cache_thread)
+            cache_thread.start()
+            cache_thread.join()
+
+        unique_ids = set([thread.cache_id() for thread in cache_threads])
+        self.assertEqual(len(unique_ids), 1)
 
 
 class PresenceAnalyzerHelpersTestCase(unittest.TestCase):

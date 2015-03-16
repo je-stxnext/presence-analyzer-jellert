@@ -13,6 +13,7 @@ from itertools import groupby
 from json import dumps
 from lxml import etree
 from operator import itemgetter
+from threading import Lock
 
 from presence_analyzer.main import app
 
@@ -31,19 +32,21 @@ def cache(max_duration):
         cache.cache = {}
     if not hasattr(cache, 'time'):
         cache.time = None
+    if not hasattr(cache, 'lock'):
+        cache.lock = Lock()
 
     def decorator(function):
         """ Inner function wrapper. """
         @functools.wraps(function)
         def wrapper(*args, **kargs):
             """ Inner parameters wrapper. """
-            now = datetime.now()
-            if cache.time is None or (
-                (get_absolute_seconds(now) -
-                 get_absolute_seconds(cache.time)) > max_duration
-            ):
-                cache.time = now
-                cache.cache.update(function(*args, **kargs))
+            with cache.lock:
+                now = datetime.now()
+                if cache.time is None or (
+                        (get_absolute_seconds(now) -
+                         get_absolute_seconds(cache.time)) > max_duration):
+                    cache.time = now
+                    cache.cache = function(*args, **kargs)
             return cache.cache
         return wrapper
     return decorator
