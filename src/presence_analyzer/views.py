@@ -12,9 +12,9 @@ from flask_mako import render_template
 
 from presence_analyzer.main import app
 from presence_analyzer.utils import get_data
+from presence_analyzer.utils import get_users_from_xml
 from presence_analyzer.utils import group_by_start_end_means
 from presence_analyzer.utils import group_by_weekday
-from presence_analyzer.utils import get_users_from_xml
 from presence_analyzer.utils import mean
 from presence_analyzer.utils import jsonify
 

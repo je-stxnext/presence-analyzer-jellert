@@ -22,6 +22,10 @@ TEST_DATA_XML = os.path.join(
     os.path.dirname(__file__), '..', '..', 'runtime', 'data', 'test_data.xml'
 )
 
+TEST_INI_FILENAME = os.path.join(
+    os.path.dirname(__file__), '..', '..', 'runtime', 'test_debug.ini'
+)
+
 
 # pylint: disable=maybe-no-member, too-many-public-methods
 class PresenceAnalyzerViewsTestCase(unittest.TestCase):
@@ -159,14 +163,13 @@ class PresenceAnalyzerHelpersTestCase(unittest.TestCase):
 
     def setUp(self):
         """ Before each test, set up a environment. """
-        pass
 
     def tearDown(self):
         """ Get rid of unused objects after each test. """
         pass
 
     def test_get_users_from_xml(self):
-        """ Test parsing of xml users file. """
+        """ Test parsing existence of xml users file. """
         self.assertIsNotNone(os.path.exists(helpers.get_users_xml_file()))
 
     def test_get_users_url(self):
@@ -176,6 +179,7 @@ class PresenceAnalyzerHelpersTestCase(unittest.TestCase):
     def test_save_user_from_www(self):
         """ Test saving of xml user file from WWW. """
         self.assertTrue(helpers.save_users_from_www())
+        self.assertFalse(helpers.save_users_from_www(TEST_INI_FILENAME))
 
 
 def suite():
