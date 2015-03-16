@@ -4,18 +4,20 @@ Defines views.
 """
 
 import calendar
+import logging
+
 from flask import abort
 from flask import redirect
 from flask_mako import render_template
 
 from presence_analyzer.main import app
 from presence_analyzer.utils import get_data
+from presence_analyzer.utils import get_users_from_xml
 from presence_analyzer.utils import group_by_start_end_means
 from presence_analyzer.utils import group_by_weekday
 from presence_analyzer.utils import mean
 from presence_analyzer.utils import jsonify
 
-import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
@@ -29,11 +31,12 @@ def mainpage():
 @jsonify
 def users_view():
     """ Users listing for dropdown. """
-    data = get_data()
-    return [
-        {'user_id': i, 'name': 'User {0}'.format(str(i))}
-        for i in data.keys()
-    ]
+    data = get_users_from_xml()
+    data = [{'user_id': user_id, 'name': item.get('name')}
+            for user_id, item in data.items()]
+    return sorted(data,
+                  lambda item1, item2: cmp(item1.get("name"),
+                                           item2.get("name")))
 
 
 @app.route('/api/v1/mean_time_weekday/<int:user_id>', methods=['GET'])
@@ -106,3 +109,15 @@ def presence_weekday_template_view():
 def presence_start_end_template_view():  # pylint: disable=invalid-name
     """ view using presence start and template """
     return render_template('presence_start_end.html', name='mako')
+
+
+@app.route('/api/v1/pictures/<int:user_id>', methods=['GET'])
+@jsonify
+def user_picture_view(user_id):
+    """ Returns mean presence time of given user grouped by weekday. """
+    data = get_users_from_xml()
+    if user_id not in data:
+        log.debug('User %s not found!', user_id)
+        abort(404)
+
+    return data[int(user_id)].get('url')

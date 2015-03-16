@@ -2,19 +2,28 @@
 """
 Presence analyzer unit tests.
 """
-import os.path
-import json
+
 import datetime
+import json
+import os.path
 import unittest
 
+from presence_analyzer import helpers
 from presence_analyzer import main
 from presence_analyzer import utils
 from presence_analyzer import views  # pylint: disable=unused-import
-from presence_analyzer.utils import get_time_from_seconds
 
 
 TEST_DATA_CSV = os.path.join(
     os.path.dirname(__file__), '..', '..', 'runtime', 'data', 'test_data.csv'
+)
+
+TEST_DATA_XML = os.path.join(
+    os.path.dirname(__file__), '..', '..', 'runtime', 'data', 'test_data.xml'
+)
+
+TEST_INI_FILENAME = os.path.join(
+    os.path.dirname(__file__), '..', '..', 'runtime', 'test_debug.ini'
 )
 
 
@@ -24,7 +33,8 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
     def setUp(self):
         """ Before each test, set up a environment. """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({'DATA_CSV': TEST_DATA_CSV,
+                                'DATA_XML': TEST_DATA_XML})
         self.client = main.app.test_client()
 
     def tearDown(self):
@@ -43,7 +53,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 3)
         self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
 
     def test_mean_time_weekday(self):
@@ -94,13 +104,26 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         resp = self.client.get('/static/presence_start_end.html')
         self.assertEqual(resp.status_code, 200)
 
+    def test_user_picture_view(self):
+        """ Test presence of a user picture. """
+        data = utils.get_users_from_xml()
+        min_user = min(data.keys())
+
+        resp = self.client.get('/api/v1/pictures/%s' % min_user)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.content_type, 'application/json')
+
+        resp = self.client.get('/api/v1/pictures/%s' % (min_user-1))
+        self.assertEqual(resp.status_code, 404)
+
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     """ Utility functions tests. """
 
     def setUp(self):
         """ Before each test, set up a environment. """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({'DATA_CSV': TEST_DATA_CSV,
+                                'DATA_XML': TEST_DATA_XML})
 
     def tearDown(self):
         """ Get rid of unused objects after each test. """
@@ -122,10 +145,41 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
 
     def test_get_time_from_seconds(self):
         """ Test for conversion from seconds to hours, minutes, seconds. """
-        self.assertEqual(get_time_from_seconds(0), [0, 0, 0])
-        self.assertEqual(get_time_from_seconds(60), [0, 1, 0])
-        self.assertEqual(get_time_from_seconds(50714), [14, 05, 14])
-        self.assertRaises(ValueError, get_time_from_seconds, -123)
+        self.assertEqual(utils.get_time_from_seconds(0), [0, 0, 0])
+        self.assertEqual(utils.get_time_from_seconds(60), [0, 1, 0])
+        self.assertEqual(utils.get_time_from_seconds(50714), [14, 05, 14])
+        self.assertRaises(ValueError, utils.get_time_from_seconds, -123)
+
+    def test_get_users_from_xml(self):
+        """ Test parsing of xml users file. """
+        data = utils.get_users_from_xml()
+        self.assertIsNotNone(data)
+        self.assertGreater(len(data), 0)
+        self.assertIsInstance(data[10], dict)
+
+
+class PresenceAnalyzerHelpersTestCase(unittest.TestCase):
+    """ Helper functions tests. """
+
+    def setUp(self):
+        """ Before each test, set up a environment. """
+
+    def tearDown(self):
+        """ Get rid of unused objects after each test. """
+        pass
+
+    def test_get_users_from_xml(self):
+        """ Test parsing existence of xml users file. """
+        self.assertIsNotNone(os.path.exists(helpers.get_users_xml_file()))
+
+    def test_get_users_url(self):
+        """ Test parsing of xml users file. """
+        self.assertIsNotNone(helpers.get_users_url())
+
+    def test_save_user_from_www(self):
+        """ Test saving of xml user file from WWW. """
+        self.assertTrue(helpers.save_users_from_www())
+        self.assertFalse(helpers.save_users_from_www(TEST_INI_FILENAME))
 
 
 def suite():
@@ -133,6 +187,7 @@ def suite():
     base_suite = unittest.TestSuite()
     base_suite.addTest(unittest.makeSuite(PresenceAnalyzerViewsTestCase))
     base_suite.addTest(unittest.makeSuite(PresenceAnalyzerUtilsTestCase))
+    base_suite.addTest(unittest.makeSuite(PresenceAnalyzerHelpersTestCase))
     return base_suite
 
 
