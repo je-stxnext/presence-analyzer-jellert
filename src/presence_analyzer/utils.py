@@ -2,6 +2,7 @@
 """ Helper functions used in views. """
 
 import csv
+import functools
 import logging
 
 from datetime import datetime
@@ -16,7 +17,36 @@ from operator import itemgetter
 from presence_analyzer.main import app
 
 
-log = logging.getLogger(__name__)  # pylint: disable=invalid-name
+LOG = logging.getLogger(__name__)  # pylint: disable=invalid-name
+
+
+def get_absolute_seconds(time):
+    """ Get number of seconds for a time parameter. """
+    return int(time.strftime('%s'))
+
+
+def cache(max_duration):
+    """ Cache decorator to cache of users data. """
+    if not hasattr(cache, 'cache'):
+        cache.cache = {}
+    if not hasattr(cache, 'time'):
+        cache.time = None
+
+    def decorator(function):
+        """ Inner function wrapper. """
+        @functools.wraps(function)
+        def wrapper(*args, **kargs):
+            """ Inner parameters wrapper. """
+            now = datetime.now()
+            if cache.time is None or (
+                (get_absolute_seconds(now) -
+                 get_absolute_seconds(cache.time)) > max_duration
+            ):
+                cache.time = now
+                cache.cache.update(function(*args, **kargs))
+            return cache.cache
+        return wrapper
+    return decorator
 
 
 def jsonify(function):
@@ -65,7 +95,7 @@ def get_data():
                 start = datetime.strptime(row[2], '%H:%M:%S').time()
                 end = datetime.strptime(row[3], '%H:%M:%S').time()
             except (ValueError, TypeError):
-                log.debug('Problem with line %d: ', i, exc_info=True)
+                LOG.debug('Problem with line %d: ', i, exc_info=True)
 
             data.setdefault(user_id, {})[date] = {'start': start, 'end': end}
 

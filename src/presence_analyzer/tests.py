@@ -129,6 +129,11 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """ Get rid of unused objects after each test. """
         pass
 
+    def test_utils(self):
+        """ Test pure utils functions. """
+        self.assertGreater(utils.get_absolute_seconds(datetime.datetime.now()),
+                           0)
+
     def test_get_data(self):
         """ Test parsing of CSV file. """
         data = utils.get_data()
@@ -156,6 +161,16 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertIsNotNone(data)
         self.assertGreater(len(data), 0)
         self.assertIsInstance(data[10], dict)
+
+    def test_cache(self):
+        """ Test cache functionality. """
+        cache_data = utils.cache(600)(utils.get_users_from_xml)()
+        self.assertIsInstance(cache_data, dict)
+        self.assertGreater(len(cache_data), 0)
+        self.assertIsInstance(cache_data[10], dict)
+
+        cache_data_2 = utils.cache(600)(utils.get_users_from_xml)()
+        self.assertEqual(id(cache_data), id(cache_data_2))
 
 
 class PresenceAnalyzerHelpersTestCase(unittest.TestCase):
