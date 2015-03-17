@@ -207,13 +207,14 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
                 """ Cache id. """
                 return self._id
 
-        num_threads = 20
+        num_threads = 100
         cache_threads = []
         for _ in range(num_threads):
             cache_thread = CacheThread()
             cache_threads.append(cache_thread)
             cache_thread.start()
-            cache_thread.join()
+
+        _ = [thread.join() for thread in cache_threads]
 
         unique_ids = set([thread.cache_id() for thread in cache_threads])
         self.assertEqual(len(unique_ids), 1)
