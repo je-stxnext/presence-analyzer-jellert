@@ -121,9 +121,9 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
 def get_dummy_data():
     """ Dummy function for cache. """
-    return {10: {u'name': 'name 10', u'url': 'url 10'},
-            11: {u'name': 'name 11', u'url': 'url 11'},
-            12: {u'name': 'name 12', u'url': 'url 12'}}
+    return dict({10: {u'name': 'name 10', u'url': 'url 10'},
+                 11: {u'name': 'name 11', u'url': 'url 11'},
+                 12: {u'name': 'name 12', u'url': 'url 12'}})
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
