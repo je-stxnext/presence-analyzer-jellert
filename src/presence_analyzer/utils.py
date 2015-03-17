@@ -162,6 +162,7 @@ def get_time_from_seconds(seconds):
     return [int(e) for e in str(timedelta(seconds=seconds)).split(':')]
 
 
+@cache(600)
 def get_users_from_xml():
     """  Extracts presence data from XML file and groups it by name. """
     with open(app.config['DATA_XML'], 'r') as xmlfile:

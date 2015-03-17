@@ -56,7 +56,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
         self.assertEqual(len(data), 3)
-        self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
+        self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'name 10'})
 
     def test_mean_time_weekday(self):
         """ Test mean time weekday. """
@@ -119,6 +119,13 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 404)
 
 
+def get_dummy_data():
+    """ Dummy function for cache. """
+    return {10: {u'name': 'name 10', u'url': 'url 10'},
+            11: {u'name': 'name 11', u'url': 'url 11'},
+            12: {u'name': 'name 12', u'url': 'url 12'}}
+
+
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     """ Utility functions tests. """
 
@@ -166,17 +173,17 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
 
     def test_cache(self):
         """ Test cache functionality. """
-        self.assertEqual(id(self.get_cache_data(100)),
-                         id(self.get_cache_data(100)))
+        self.assertEqual(id(self.get_asserted_dummy_cache_data(100)),
+                         id(self.get_asserted_dummy_cache_data(100)))
 
-        cache_data = self.get_cache_data(2)
-        time.sleep(4)
-        cache_data_2 = self.get_cache_data(2)
+        cache_data = self.get_asserted_dummy_cache_data(1)
+        time.sleep(2)
+        cache_data_2 = self.get_asserted_dummy_cache_data(1)
         self.assertNotEqual(id(cache_data), id(cache_data_2))
 
-    def get_cache_data(self, seconds):
+    def get_asserted_dummy_cache_data(self, seconds):
         """ Helper method to get decorated cache data. """
-        cache_data = utils.cache(seconds)(utils.get_users_from_xml)()
+        cache_data = utils.cache(seconds)(get_dummy_data)()
         self.assertIsInstance(cache_data, dict)
         self.assertGreater(len(cache_data), 0)
         self.assertIsInstance(cache_data[10], dict)
@@ -194,7 +201,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
 
             def run(self):
                 """ Thread activity. """
-                self._id = id(utils.cache(600)(utils.get_users_from_xml)())
+                self._id = id(utils.cache(600)(get_dummy_data)())
 
             def cache_id(self):
                 """ Cache id. """
