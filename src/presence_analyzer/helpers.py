@@ -37,8 +37,6 @@ def save_users_from_www(ini_filename=INI_FILENAME):
                 with open(get_users_xml_file(ini_filename), 'w') as _xfile:
                     _xfile.writelines(lines)
                 return True
-            else:
-                LOG.debug('Improper users xml file !', exc_info=True)
     except (IOError, TypeError):
         LOG.debug("Problem during processing url %s! ",
                   url_file, exc_info=True)

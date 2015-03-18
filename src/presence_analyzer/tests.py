@@ -6,6 +6,8 @@ Presence analyzer unit tests.
 import datetime
 import json
 import os.path
+import threading
+import time
 import unittest
 
 from presence_analyzer import helpers
@@ -54,7 +56,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
         self.assertEqual(len(data), 3)
-        self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
+        self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'name 10'})
 
     def test_mean_time_weekday(self):
         """ Test mean time weekday. """
@@ -117,6 +119,13 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 404)
 
 
+def get_dummy_data():
+    """ Dummy function for cache. """
+    return dict({10: {u'name': 'name 10', u'url': 'url 10'},
+                 11: {u'name': 'name 11', u'url': 'url 11'},
+                 12: {u'name': 'name 12', u'url': 'url 12'}})
+
+
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     """ Utility functions tests. """
 
@@ -128,6 +137,11 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
     def tearDown(self):
         """ Get rid of unused objects after each test. """
         pass
+
+    def test_utils(self):
+        """ Test pure utils functions. """
+        self.assertGreater(utils.get_absolute_seconds(datetime.datetime.now()),
+                           0)
 
     def test_get_data(self):
         """ Test parsing of CSV file. """
@@ -156,6 +170,54 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertIsNotNone(data)
         self.assertGreater(len(data), 0)
         self.assertIsInstance(data[10], dict)
+
+    def test_cache(self):
+        """ Test cache functionality. """
+        self.assertEqual(id(self.get_asserted_dummy_cache_data(100)),
+                         id(self.get_asserted_dummy_cache_data(100)))
+
+        cache_data = self.get_asserted_dummy_cache_data(1)
+        time.sleep(2)
+        cache_data_2 = self.get_asserted_dummy_cache_data(1)
+        self.assertNotEqual(id(cache_data), id(cache_data_2))
+
+    def get_asserted_dummy_cache_data(self, seconds):
+        """ Helper method to get decorated cache data. """
+        cache_data = utils.cache(seconds)(get_dummy_data)()
+        self.assertIsInstance(cache_data, dict)
+        self.assertGreater(len(cache_data), 0)
+        self.assertIsInstance(cache_data[10], dict)
+        return cache_data
+
+    def test_save_threading_cache(self):
+        """ Test save threading of cache. """
+
+        class CacheThread(threading.Thread):
+            """ Cache thread. """
+
+            def __init__(self):
+                super(CacheThread, self).__init__()
+                self._id = None
+
+            def run(self):
+                """ Thread activity. """
+                self._id = id(utils.cache(600)(get_dummy_data)())
+
+            def cache_id(self):
+                """ Cache id. """
+                return self._id
+
+        num_threads = 100
+        cache_threads = []
+        for _ in range(num_threads):
+            cache_thread = CacheThread()
+            cache_threads.append(cache_thread)
+            cache_thread.start()
+
+        _ = [thread.join() for thread in cache_threads]
+
+        unique_ids = set([thread.cache_id() for thread in cache_threads])
+        self.assertEqual(len(unique_ids), 1)
 
 
 class PresenceAnalyzerHelpersTestCase(unittest.TestCase):
